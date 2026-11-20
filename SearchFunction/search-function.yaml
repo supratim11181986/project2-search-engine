@@ -1,14 +1,15 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: 'AWS::Serverless-2016-10-31'
-Description: An AWS Serverless Specification template describing your function.
+Description: Search Function Lambda
+
 Resources:
-  searchgateway:
+  searchfunction:
     Type: 'AWS::Serverless::Function'
     Properties:
-      Handler: sample.lambda_handler
+      Handler: lambda_function.lambda_handler
       Runtime: python3.9
       CodeUri: .
       Description: ''
       MemorySize: 128
       Timeout: 300
-      Role: 'arn:aws:iam::844028273225:role/lambda_s3'
+      Role: 'arn:aws:iam::470693845209:role/Project2-OpenSearch-Lambda-Role'

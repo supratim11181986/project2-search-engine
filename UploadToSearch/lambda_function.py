@@ -4,7 +4,7 @@ import requests
 import math
 from requests_aws4auth import AWS4Auth
 
-region = 'ap-northeast-1' # e.g. us-west-1
+region = 'us-east-2' # e.g. us-west-1
 service = 'es'
 credentials = boto3.Session().get_credentials()
 print("Credentials:", credentials)
@@ -12,8 +12,8 @@ awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, servi
 print("Credentials access key:", credentials.access_key)
 print("Credentials secret key:", credentials.secret_key)
 
-host = 'https://search-mygoogle-74xgfxo3qbqg4mmm5zzt3a3uye.ap-northeast-1.es.amazonaws.com' # the OpenSearch Service domain, e.g. https://search-mydomain.us-west-1.es.amazonaws.com
-index = 'mygoogle'
+host = 'https://vpc-project2-search-pp5hmyb6p57g5ar4ilpm4djrwy.us-east-2.es.amazonaws.com' # the OpenSearch Service domain, e.g. https://search-mydomain.us-west-1.es.amazonaws.com
+index = 'documents'
 datatype = '_doc'
 #url = host + '/' + index + '/' + datatype
 
