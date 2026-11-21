@@ -1,19 +1,11 @@
-import search_page,json
+import search_page
 
-# Lambda execution starts here
 
 def lambda_handler(event, context):
-  
-
-    
-    response_html = {
+    return {
         "statusCode": 200,
-        "statusDescription": "200 OK",
-        "isBase64Encoded": False,
         "headers": {
-            "Content-Type": "text/html; charset=utf-8"
-        }
+            "Content-Type": "text/html"
+        },
+        "body": search_page.searchhome()
     }
-    response_html['body'] = search_page.searchhome()
-    
-    return response_html
