@@ -4,6 +4,9 @@ phases:
   install:
     runtime-versions:
       python: 3.10
+    commands:
+      - pip install requests -t UploadToSearch/
+      - pip install requests-aws4auth -t UploadToSearch/
 
   build:
     commands:
