@@ -4,12 +4,13 @@ phases:
   install:
     runtime-versions:
       python: 3.10
+    commands:
+      - pip install pypdf -t PDFtoTXT/
 
   build:
     commands:
       - aws cloudformation package --template-file PDFtoTXT/pdftotxt.yaml --s3-bucket project2-codepipeline-artifacts-supratim --output-template-file lambdaoutput.yaml
 
 artifacts:
-  type: zip
   files:
     - lambdaoutput.yaml
