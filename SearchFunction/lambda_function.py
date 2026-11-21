@@ -7,76 +7,124 @@ import json
 
 region = 'us-east-2'
 service = 'es'
+
 credentials = boto3.Session().get_credentials()
-awsauth = AWS4Auth(credentials.access_key, credentials.secret_key, region, service, session_token=credentials.token)
+
+awsauth = AWS4Auth(
+    credentials.access_key,
+    credentials.secret_key,
+    region,
+    service,
+    session_token=credentials.token
+)
+
 host = 'https://vpc-project2-search-pp5hmyb6p57g5ar4ilpm4djrwy.us-east-2.es.amazonaws.com'
 index = 'documents'
 url = host + '/' + index + '/_search'
+
+
 def get_from_Search(query):
-    
-    headers = { "Content-Type": "application/json" }
 
-    r = requests.get(url, auth=awsauth, headers=headers, data=json.dumps(query))
+    headers = {"Content-Type": "application/json"}
 
-    response = {
-        "statusCode": 200,
-        "headers": {
-            "Access-Control-Allow-Origin": '*'
-        },
-        "isBase64Encoded": False
-    }
+    r = requests.get(
+        url,
+        auth=awsauth,
+        headers=headers,
+        data=json.dumps(query)
+    )
 
-    response['body'] = r.text
-    body=r.text
-    response_json=json.dumps(body);
-    return body
+    print("OpenSearch response:", r.text)
+
+    return r.text
 
 
 def lambda_handler(event, context):
+
     try:
-        print("Event is",event)
-        response = {
-        "statusCode": 200, "statusDescription": "200 OK", "isBase64Encoded": False,
-        "headers": { "Content-Type": "application/json" }
-        }
-        encBodyData = event['body']
-        bodyData = base64.b64decode(encBodyData)
-        encFormData = bodyData.decode('utf-8')
-        formDict = urllib.parse.parse_qs(encFormData)
+
+        print("Event is", event)
+
+        #
+        # Handle API Gateway body correctly
+        #
+        if event.get('isBase64Encoded', False):
+            body_data = base64.b64decode(event['body']).decode('utf-8')
+        else:
+            body_data = event['body']
+
+        print("Body data:", body_data)
+
+        formDict = urllib.parse.parse_qs(body_data)
+
         term = formDict.get('searchTerm')
+
         print("Term:", term)
-        print("Type of term", type(term))
-        print("Term[0]:", term[0])
-        query = {
-        "size": 25,
-        "query": {
-            "multi_match": {
-                "query": term[0],
-                "fields": ["Title","Author", "Date", "Body"]
+
+        if not term:
+            return {
+                "statusCode": 400,
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*"
+                },
+                "body": json.dumps({
+                    "message": "searchTerm not provided"
+                })
             }
+
+        query = {
+            "size": 25,
+            "query": {
+                "multi_match": {
+                    "query": term[0],
+                    "fields": [
+                        "Title",
+                        "Author",
+                        "Date",
+                        "Body"
+                    ]
+                }
             },
-            "fields": ["Title","Author","Date","Summary"]
+            "fields": [
+                "Title",
+                "Author",
+                "Date",
+                "Summary"
+            ]
         }
-        print("Sending query to Opensearch")
-        response = get_from_Search(query)
-        response_json = json.loads(response)
-        print("Response JSON is ", json.dumps(response_json))
-        author = response_json["hits"]["hits"][0]["_source"]["Author"]
-        date = response_json["hits"]["hits"][0]["_source"]["Date"]
-        body = response_json["hits"]["hits"][0]["_source"]["Body"]
-        print("Author is ", author)
-        print("Date is ",date)
-        print("Body is", body)
+
+        print("Sending query to OpenSearch")
+
+        response_text = get_from_Search(query)
+
+        response_json = json.loads(response_text)
+
         final_response = response_json["hits"]["hits"]
-        print("Final response is ", json.dumps(final_response))
-        return final_response
-            
-    
+
+        print("Final response:", json.dumps(final_response))
+
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            "body": json.dumps(final_response)
+        }
+
     except Exception as e:
+
         print("Exception is", str(e))
-        respData = {}
-        respData['status'] = False;
-        respData['message'] = str(e);
-        response['statusCode'] = 500;
-        response['body'] = json.dumps(respData);
-        return response
+
+        return {
+            "statusCode": 500,
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*"
+            },
+            "body": json.dumps({
+                "status": False,
+                "message": str(e)
+            })
+        }
