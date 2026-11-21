@@ -4,6 +4,9 @@ phases:
   install:
     runtime-versions:
       python: 3.10
+    commands:
+      - pip install requests -t SearchFunction/
+      - pip install requests-aws4auth -t SearchFunction/
 
   build:
     commands:
