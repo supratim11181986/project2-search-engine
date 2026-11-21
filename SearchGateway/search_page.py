@@ -71,8 +71,8 @@ def searchhome():
 	<script>
 
 		$(document).ready(function() {
-			$("#home").attr('href', '/');
-			$("#searchForm").attr('action', '/search');
+			$("#home").attr('href', '/prod');
+			$("#searchForm").attr('action', '/prod/search');
 		});
 
 		$("#searchForm").submit(function(e) {
